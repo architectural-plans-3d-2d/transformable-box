@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Transformable Box — by Noor</title>
+<title>Transformable Box — Noor's prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 *{box-sizing:border-box} [hidden]{display:none!important}
 :root{
-  --paper:#ece3d4; --sheet:#fbf7f0; --ink:#3a3127; --muted:#8a7c69; --line:#ded2bd;
-  --accent:#b06a3c; --accent-ink:#ffffff; --sky:#e7ddcb;
+  --paper:#e9e0d1; --sheet:#fbf7f0; --ink:#3a3127; --muted:#8a7c69; --line:#ded2bd;
+  --accent:#b06a3c; --accent-ink:#ffffff;
   --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --font-body:"IBM Plex Sans","Segoe UI",Roboto,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#1c1812; --sheet:#262019; --ink:#ece3d4; --muted:#a99a84; --line:#3a3127;
-  --accent:#d98a56; --accent-ink:#1c1812; --sky:#201b14; color-scheme:dark}}
+  --paper:#1a1610; --sheet:#241f18; --ink:#ece3d4; --muted:#a99a84; --line:#38302595;
+  --accent:#d98a56; --accent-ink:#1a1610; color-scheme:dark}}
 html,body{height:100%;margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);overflow:hidden}
 .app{position:relative;height:100%;display:flex;flex-direction:column}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -24,35 +24,43 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;
   background:var(--sheet);border-bottom:1px solid var(--line)}
 .brand h1{font:700 clamp(1rem,4.6vw,1.25rem)/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;margin:0}
 .brand p{margin:3px 0 0;font-size:.72rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
-.by{flex:none;font:600 .9rem var(--font-display);color:var(--accent);letter-spacing:.02em}
-.by b{font-style:italic;font-weight:700}
-.stage{position:relative;flex:1;min-height:0;background:var(--sky);touch-action:none}
+.by{flex:none;text-align:right;font:600 .82rem var(--font-display);color:var(--accent);letter-spacing:.02em;line-height:1.2}
+.by b{font-style:italic;font-weight:700;display:block;font-size:.95rem}
+.stage{position:relative;flex:1;min-height:0;touch-action:none}
 canvas{display:block;width:100%;height:100%;cursor:grab}
 canvas.grabbing{cursor:grabbing}
 .hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:calc(100% - 32px);text-align:center;
-  font:500 .74rem var(--font-body);color:var(--ink);background:color-mix(in srgb,var(--sheet) 92%,transparent);
+  font:500 .74rem var(--font-body);color:var(--ink);background:color-mix(in srgb,var(--sheet) 90%,transparent);
   border:1px solid var(--line);padding:7px 14px;border-radius:999px;box-shadow:0 4px 18px rgb(0 0 0 /.12);transition:opacity .5s ease}
 .hint.gone{opacity:0;pointer-events:none}
 .status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 .9rem var(--font-body);
   color:var(--muted);background:var(--sheet);padding:10px 14px;border-radius:10px;border:1px solid var(--line)}
-.dock{background:var(--sheet);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;
-  padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
-.caption{display:flex;gap:10px;align-items:baseline;min-height:2.4em}
+.dock{background:var(--sheet);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:9px;
+  padding:11px max(16px,env(safe-area-inset-left,0px)) calc(11px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+.caption{display:flex;gap:10px;align-items:baseline;min-height:2.2em}
 .caption b{font:700 .92rem var(--font-display)}
-.caption span{font-size:.82rem;color:var(--muted);line-height:1.35}
+.caption span{font-size:.8rem;color:var(--muted);line-height:1.3}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.seg button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;justify-content:center;
+.seg button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:54px;justify-content:center;
   border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;cursor:pointer;
-  font:600 .9rem var(--font-body);transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+  font:600 .9rem var(--font-body);transition:background-color .18s,border-color .18s,color .18s}
 .seg button small{font-weight:500;font-size:.66rem;color:var(--muted)}
 .seg button:hover{border-color:var(--muted)}
 .seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--paper))}
 .seg button[aria-pressed="true"] small{color:var(--accent)}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.acts button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink);border-radius:11px;cursor:pointer;font:600 .82rem var(--font-body);transition:all .18s}
+.acts button .dot{width:8px;height:8px;border-radius:50%;background:var(--line);transition:background-color .18s}
+.acts button:hover{border-color:var(--muted)}
+.acts button.on{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--paper))}
+.acts button.on .dot{background:var(--accent)}
 .dims{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-size:.7rem;color:var(--muted)}
 .dims b{color:var(--ink);font-weight:600}
 button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-@media (min-width:641px){ .seg{grid-template-columns:repeat(3,auto);justify-content:center} .seg button{min-width:150px} }
+@media (min-width:641px){ .seg{grid-template-columns:repeat(3,auto);justify-content:center} .seg button{min-width:140px}
+  .acts{grid-template-columns:auto auto;justify-content:center} .acts button{min-width:190px} }
 </style>
 </head>
 <body>
@@ -62,12 +70,12 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <h1>Transformable Box</h1>
       <p>Stool · Storage · Study desk</p>
     </div>
-    <span class="by">by <b>Noor</b></span>
+    <span class="by">prototype by<b>Noor</b></span>
   </header>
 
   <div class="stage" id="stage">
-    <canvas id="c" tabindex="0" aria-label="Interactive 3D model of a transformable box. Drag a box to fold it and drag a front panel to open the desk; use the buttons to snap to a configuration."></canvas>
-    <div class="hint" id="hint">Drag a box to fold it · drag a front panel to open the desk</div>
+    <canvas id="c" tabindex="0" aria-label="Interactive 3D model of a transformable box. Use the buttons to fold between stool, storage and desk, and to open or close each panel; or drag parts directly."></canvas>
+    <div class="hint" id="hint">Use the buttons below · or drag a part to move it</div>
     <div class="status" id="status">Loading…</div>
   </div>
 
@@ -78,10 +86,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
       <button id="bStorage" aria-pressed="false">Storage<small>fold &amp; stack</small></button>
       <button id="bDesk"   aria-pressed="false">Study desk<small>fold-down panel</small></button>
     </div>
+    <div class="acts">
+      <button id="tUpper"><span class="dot"></span><span id="tUpperLbl">Open upper panel</span></button>
+      <button id="tLower"><span class="dot"></span><span id="tLowerLbl">Open lower door</span></button>
+    </div>
     <div class="dims">
       <span>Each box <b>450 × 450 × 450 mm</b></span>
       <span>Cabinet <b>450 × 900 × 450 mm</b></span>
-      <span>Desk panel <b>450 mm</b></span>
     </div>
   </div>
 </div>
@@ -90,70 +101,85 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
 <script>
-const S = 0.45, T = 0.018, H = S / 2;
+const S = 0.45, T = 0.018, H = S / 2, PI = Math.PI;
 
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 100);
+const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 100);
 const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
-controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 0.7; controls.maxDistance = 6;
+controls.maxPolarAngle = PI * 0.49; controls.minDistance = 0.7; controls.maxDistance = 6;
 controls.target.set(0, 0.42, 0);
-camera.position.set(1.25, 1.0, 1.5);
+controls.autoRotate = true; controls.autoRotateSpeed = 0.5;
+camera.position.set(1.3, 0.95, 1.5);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
 
+// ---------- realistic wood texture (procedural) ----------
+function woodTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+  const base = g.createLinearGradient(0, 0, 512, 0);
+  base.addColorStop(0, '#b27f46'); base.addColorStop(.5, '#c38d50'); base.addColorStop(1, '#a9763f');
+  g.fillStyle = base; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 1000; i++) {
+    const x = Math.random() * 512, a = 0.03 + Math.random() * 0.10;
+    g.strokeStyle = `rgba(${70 + Math.random() * 30 | 0},${44 + Math.random() * 24 | 0},${20 + Math.random() * 14 | 0},${a})`;
+    g.lineWidth = 0.5 + Math.random() * 1.7; g.beginPath();
+    const amp = 5 + Math.random() * 16, ph = Math.random() * 6.28;
+    g.moveTo(x, 0); for (let y = 0; y <= 512; y += 14) g.lineTo(x + Math.sin(y / 85 + ph) * amp, y);
+    g.stroke();
+  }
+  for (let k = 0; k < 3; k++) { const kx = 60 + Math.random() * 392, ky = 60 + Math.random() * 392;
+    for (let r = 15; r > 0; r -= 2) { g.strokeStyle = `rgba(66,42,20,${0.05 + Math.random() * 0.05})`; g.lineWidth = 1.2;
+      g.beginPath(); g.ellipse(kx, ky, r, r * 0.68, Math.random(), 0, 6.28); g.stroke(); } }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.encoding = THREE.sRGBEncoding; return t;
+}
+const WOOD = woodTexture();
+const woodFace = new THREE.MeshPhysicalMaterial({ map: WOOD, bumpMap: WOOD, bumpScale: 0.0035, color: 0xffffff,
+  roughness: 0.55, metalness: 0, clearcoat: 0.22, clearcoatRoughness: 0.55, envMapIntensity: 0.85 });
+const woodIn = new THREE.MeshPhysicalMaterial({ map: WOOD, bumpMap: WOOD, bumpScale: 0.003, color: 0xb78a56,
+  roughness: 0.7, metalness: 0, clearcoat: 0.1, clearcoatRoughness: 0.6, envMapIntensity: 0.6 });
+const steel = new THREE.MeshStandardMaterial({ color: 0x9aa0a6, roughness: 0.32, metalness: 0.92, envMapIntensity: 1.0 });
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x4a3a26, transparent: true, opacity: 0.12 });
+
+// ---------- studio backdrop + soft contact shadow ----------
+function gradTex(a, b) { const c = document.createElement('canvas'); c.width = 4; c.height = 256; const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 256); gr.addColorStop(0, a); gr.addColorStop(1, b); g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; }
 function themeColors() {
   const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light'
             || document.documentElement.dataset.theme === 'dark';
-  scene.background = new THREE.Color(dark ? 0x201b14 : 0xe7ddcb);
-  scene.fog = new THREE.Fog(dark ? 0x201b14 : 0xe7ddcb, 6, 16);
+  scene.background = dark ? gradTex('#2a231b', '#121009') : gradTex('#f2ead9', '#cdbfa4');
+  scene.fog = new THREE.Fog(dark ? 0x17130d : 0xd6c9b0, 7, 18);
 }
 themeColors();
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', themeColors);
 
-scene.add(new THREE.HemisphereLight(0xfff6e8, 0x5a4e3c, 0.45));
-const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
-sun.position.set(2.2, 3.6, 2.4); sun.castShadow = true;
+scene.add(new THREE.HemisphereLight(0xfff6e8, 0x59503f, 0.5));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.1);
+sun.position.set(2.4, 3.8, 2.2); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
-Object.assign(sun.shadow.camera, { left: -2.2, right: 2.2, top: 2.2, bottom: -2.2, near: 0.5, far: 12 });
+Object.assign(sun.shadow.camera, { left: -2.4, right: 2.4, top: 2.4, bottom: -2.4, near: 0.5, far: 13 });
 scene.add(sun);
+const rim = new THREE.DirectionalLight(0xbcd0e0, 0.5); rim.position.set(-2.5, 1.8, -2.2); scene.add(rim);
 
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.ShadowMaterial({ opacity: 0.22 }));
-ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const shadowGround = new THREE.Mesh(new THREE.PlaneGeometry(16, 16), new THREE.ShadowMaterial({ opacity: 0.26 }));
+shadowGround.rotation.x = -PI / 2; shadowGround.receiveShadow = true; scene.add(shadowGround);
+function discTex() { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(128, 128, 8, 128, 128, 122); gr.addColorStop(0, 'rgba(0,0,0,.33)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); }
+const ao = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.4), new THREE.MeshBasicMaterial({ map: discTex(), transparent: true, depthWrite: false }));
+ao.rotation.x = -PI / 2; ao.position.y = 0.001; scene.add(ao);
 
-const woodFace = new THREE.MeshStandardMaterial({ color: 0xc2924f, roughness: 0.75, metalness: 0, envMapIntensity: 0.5 });
-const woodIn   = new THREE.MeshStandardMaterial({ color: 0xa9793c, roughness: 0.82, metalness: 0, envMapIntensity: 0.45 });
-const metal    = new THREE.MeshStandardMaterial({ color: 0x70757b, roughness: 0.4, metalness: 0.75 });
-const edgeMat  = new THREE.LineBasicMaterial({ color: 0x5f4a30, transparent: true, opacity: 0.25 });
-
-// "Noor" branding stamp as a canvas texture
-function markTexture() {
-  const c = document.createElement('canvas'); c.width = 256; c.height = 132;
-  const g = c.getContext('2d'); g.clearRect(0, 0, 256, 132);
-  g.fillStyle = 'rgba(74,58,36,0.52)';
-  g.font = '700 italic 66px Georgia, "Times New Roman", serif';
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  g.fillText('Noor', 128, 62);
-  g.strokeStyle = 'rgba(74,58,36,0.38)'; g.lineWidth = 4;
-  g.beginPath(); g.moveTo(78, 100); g.lineTo(178, 100); g.stroke();
-  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; t.encoding = THREE.sRGBEncoding; return t;
-}
-const MARK_TEX = markTexture();
-function addMark(parent, x, y, z, rotY, w) {
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 0.52),
-    new THREE.MeshBasicMaterial({ map: MARK_TEX, transparent: true, depthWrite: false }));
-  m.position.set(x, y, z); m.rotation.y = rotY; parent.add(m); return m;
-}
-
+// ---------- geometry ----------
 function panel(w, h, d, mat, joint) {
   const g = new THREE.Group();
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
@@ -161,167 +187,161 @@ function panel(w, h, d, mat, joint) {
   g.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat));
   return g;
 }
-// open-front carcass (open +Z) + shelf + a "Noor" stamp on each outer side
 function carcass(joint) {
   const g = new THREE.Group();
   const add = (w, h, d, m, px, py, pz) => { const p = panel(w, h, d, m, joint); p.position.set(px, py, pz); g.add(p); };
-  add(S, S, T, woodFace, 0, 0, -H + T / 2);        // back
+  add(S, S, T, woodIn, 0, 0, -H + T / 2);          // back (inner tone)
   add(T, S, S, woodFace, -H + T / 2, 0, 0);        // left
   add(T, S, S, woodFace,  H - T / 2, 0, 0);        // right
   add(S, T, S, woodFace, 0,  H - T / 2, 0);        // top
   add(S, T, S, woodFace, 0, -H + T / 2, 0);        // bottom
   add(S - 2 * T, T, S - T, woodIn, 0, 0, T / 2);   // shelf
-  addMark(g,  H + 0.002, 0, 0,  Math.PI / 2, 0.30); // right side
-  addMark(g, -H - 0.002, 0, 0, -Math.PI / 2, 0.30); // left side
   return g;
 }
-
-// identical fold-down front door for a box. hy = hinge edge (±H), sign = fold direction.
 const HINGE = {};
 function makeDoor(box, hy, sign, key) {
   const hinge = new THREE.Group(); hinge.position.set(0, hy, H); box.add(hinge);
   const pan = panel(S - 2 * T, S - 2 * T, T, woodFace, key);
-  pan.position.set(0, -hy, 0);                      // covers the whole front from the hinge edge
-  addMark(pan, 0, 0, T / 2 + 0.002, 0, 0.30);       // "Noor" on the door face
-  hinge.add(pan);
-  HINGE[key] = hinge;
-  return { hinge, sign, key };
+  pan.position.set(0, -hy, 0);
+  hinge.add(pan); HINGE[key] = hinge;
+  return { hinge, sign, key, pan };
 }
 
-// box A (static) and box B (folds about the spine)
 const boxA = carcass('spine'); boxA.position.set(-H, H, 0); scene.add(boxA);
 const spine = new THREE.Group(); spine.position.set(0, S, 0); scene.add(spine);
 const boxB = carcass('spine'); boxB.position.set(H, -H, 0); spine.add(boxB);
+const doorA = makeDoor(boxA, -H,  1, 'deskA');
+const doorB = makeDoor(boxB,  H, -1, 'deskB');
 
-const doorA = makeDoor(boxA, -H,  1, 'deskA');       // not flipped → bottom hinge, +fold
-const doorB = makeDoor(boxB,  H, -1, 'deskB');       // flipped in storage → top hinge, -fold
-const doors = [doorA, doorB];
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, S - 0.03, 16), steel);
+barrel.rotation.x = PI / 2; barrel.castShadow = true; spine.add(barrel);
 
-// piano hinge barrel on the spine
-const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, S - 0.03, 14), metal);
-barrel.rotation.x = Math.PI / 2; barrel.castShadow = true; spine.add(barrel);
+// support brackets: two steel struts whose ends are recomputed every frame so they
+// genuinely connect the cabinet to the underside of the desk panel (no floating).
+const cabAnchor = [new THREE.Object3D(), new THREE.Object3D()];
+cabAnchor[0].position.set( H - 0.03, 0.08, H); boxA.add(cabAnchor[0]);   // right, on lower box front
+cabAnchor[1].position.set(-H + 0.03, 0.08, H); boxA.add(cabAnchor[1]);   // left
+const deskAnchor = [new THREE.Object3D(), new THREE.Object3D()];
+deskAnchor[0].position.set( H - 0.05, -(H - 0.05), -T); doorB.pan.add(deskAnchor[0]);
+deskAnchor[1].position.set(-H + 0.05, -(H - 0.05), -T); doorB.pan.add(deskAnchor[1]);
+const struts = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 1, 12), steel); m.castShadow = true; scene.add(m); return m; });
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _mid = new THREE.Vector3(), _dir = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
+function updateStruts() {
+  const show = joint.deskB > 0.06;
+  for (let i = 0; i < 2; i++) {
+    struts[i].visible = show; if (!show) continue;
+    cabAnchor[i].getWorldPosition(_a); deskAnchor[i].getWorldPosition(_b);
+    _mid.addVectors(_a, _b).multiplyScalar(0.5); _dir.subVectors(_b, _a);
+    const len = _dir.length(); struts[i].position.copy(_mid);
+    struts[i].scale.set(1, Math.max(0.001, len), 1);
+    struts[i].quaternion.setFromUnitVectors(_up, _dir.normalize());
+  }
+}
 
-// support bracket under the desk (box B's door)
-const bracket = new THREE.Group(); bracket.position.set(0, H, H - 0.01); boxB.add(bracket);
-const legL = panel(T, 0.30, T * 1.4, metal); legL.position.set(-0.17, -0.15, 0); bracket.add(legL);
-const legR = panel(T, 0.30, T * 1.4, metal); legR.position.set( 0.17, -0.15, 0); bracket.add(legR);
-[legL, legR].forEach(l => l.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; } }));
-
-// ---- joint state ----
+// ---------- joints (goal-based easing → smooth real motion) ----------
 const joint = { spine: 0, deskA: 0, deskB: 0 };
-const LIMIT = { spine: [0, Math.PI], deskA: [0, Math.PI / 2], deskB: [0, Math.PI / 2] };
+const goal  = { spine: 0, deskA: 0, deskB: 0 };
+const LIMIT = { spine: [0, PI], deskA: [0, PI / 2], deskB: [0, PI / 2] };
 const clamp = (v, [a, b]) => Math.min(b, Math.max(a, v));
 function apply() {
   spine.rotation.z = joint.spine;
   doorA.hinge.rotation.x = doorA.sign * joint.deskA;
   doorB.hinge.rotation.x = doorB.sign * joint.deskB;
-  const t = joint.deskB / (Math.PI / 2);
-  bracket.rotation.x = -t * 1.15;
-  const show = t > 0.04;
-  [legL, legR].forEach(l => l.traverse(o => { if (o.isMesh) { o.visible = show; o.material.opacity = Math.min(1, t * 2); } }));
 }
 
 const PRESET = {
-  stool:   { spine: 0,       deskA: 0, deskB: 0 },
-  storage: { spine: Math.PI, deskA: 0, deskB: 0 },
-  desk:    { spine: Math.PI, deskA: 0, deskB: Math.PI / 2 },
+  stool:   { spine: 0,  deskA: 0, deskB: 0 },
+  storage: { spine: PI, deskA: 0, deskB: 0 },
+  desk:    { spine: PI, deskA: 0, deskB: PI / 2 },
 };
 const CAPTION = {
-  stool:   ['Stool',      'Two identical box stools side by side, joined by the top hinge. Drag either box to fold.'],
+  stool:   ['Stool',      'Two identical box stools side by side, joined by the top hinge.'],
   storage: ['Storage',    'Box B folds over the hinge onto box A — a 450 × 900 × 450 cabinet.'],
-  desk:    ['Study desk', 'The upper front panel folds down on its hinge, caught by the support bracket.'],
+  desk:    ['Study desk', 'The upper panel folds down on its hinge, held by the side brackets.'],
 };
-function setButtons(name) {
-  ['bStool', 'bStorage', 'bDesk'].forEach(id => document.getElementById(id).setAttribute('aria-pressed', id.toLowerCase().includes(name)));
-  const [t, txt] = CAPTION[name];
-  document.getElementById('capTitle').textContent = t; document.getElementById('capText').textContent = txt;
+function nearName() { return goal.spine < 1.4 ? 'stool' : (goal.deskB > 0.5 ? 'desk' : 'storage'); }
+function refreshUI() {
+  const n = nearName();
+  ['bStool', 'bStorage', 'bDesk'].forEach(id => document.getElementById(id).setAttribute('aria-pressed', id.toLowerCase().includes(n)));
+  const [t, txt] = CAPTION[n]; document.getElementById('capTitle').textContent = t; document.getElementById('capText').textContent = txt;
+  const up = goal.deskB > 0.5, lo = goal.deskA > 0.5;
+  document.getElementById('tUpper').classList.toggle('on', up);
+  document.getElementById('tLower').classList.toggle('on', lo);
+  document.getElementById('tUpperLbl').textContent = up ? 'Close upper panel' : 'Open upper panel';
+  document.getElementById('tLowerLbl').textContent = lo ? 'Close lower door' : 'Open lower door';
 }
-let anim = null;
-function goTo(name) {
-  setButtons(name);
-  const to = PRESET[name];
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { Object.assign(joint, to); anim = null; return; }
-  const from = { ...joint }, start = performance.now(), dur = 1100;
-  const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-  anim = now => {
-    const k = Math.min(1, (now - start) / dur), e = ease(k);
-    for (const key of ['spine', 'deskA', 'deskB']) joint[key] = from[key] + (to[key] - from[key]) * e;
-    if (k >= 1) anim = null;
-  };
-}
-document.getElementById('bStool').onclick   = () => goTo('stool');
-document.getElementById('bStorage').onclick = () => goTo('storage');
-document.getElementById('bDesk').onclick    = () => goTo('desk');
+function setGoal(obj) { Object.assign(goal, obj); refreshUI(); bumpRotate(); }
+document.getElementById('bStool').onclick   = () => setGoal(PRESET.stool);
+document.getElementById('bStorage').onclick = () => setGoal(PRESET.storage);
+document.getElementById('bDesk').onclick    = () => setGoal(PRESET.desk);
+document.getElementById('tUpper').onclick   = () => setGoal({ spine: PI, deskB: goal.deskB > 0.5 ? 0 : PI / 2 });
+document.getElementById('tLower').onclick   = () => setGoal({ deskA: goal.deskA > 0.5 ? 0 : PI / 2 });
 
-// ---- direct manipulation ----
-const raycaster = new THREE.Raycaster();
-const ndc = new THREE.Vector2();
-const dragTargets = [];
-scene.traverse(o => { if (o.isMesh && o.userData.joint) dragTargets.push(o); });
-
+// ---------- direct manipulation ----------
+const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const dragTargets = []; scene.traverse(o => { if (o.isMesh && o.userData.joint) dragTargets.push(o); });
 function axisOf(name) {
   if (name === 'spine') return { axis: new THREE.Vector3(0, 0, 1), pivot: new THREE.Vector3(0, S, 0) };
-  const hinge = HINGE[name];
-  const pivot = new THREE.Vector3(); hinge.getWorldPosition(pivot);
-  const axis = new THREE.Vector3(1, 0, 0).transformDirection(hinge.matrixWorld).normalize();
+  const pivot = new THREE.Vector3(); HINGE[name].getWorldPosition(pivot);
+  const axis = new THREE.Vector3(1, 0, 0).transformDirection(HINGE[name].matrixWorld).normalize();
   return { axis, pivot };
 }
 function setNDC(e) { const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); }
 function radial(P, axis, pivot) { const d = P.clone().sub(pivot); return d.sub(axis.clone().multiplyScalar(d.dot(axis))); }
-function rayPlanePoint(axis, through) {
-  const o = raycaster.ray.origin, dir = raycaster.ray.direction;
-  const denom = axis.dot(dir); if (Math.abs(denom) < 1e-5) return null;
-  const t = axis.dot(through.clone().sub(o)) / denom; if (t < 0) return null;
-  return o.clone().add(dir.clone().multiplyScalar(t));
-}
+function rayPlanePoint(axis, through) { const o = raycaster.ray.origin, dir = raycaster.ray.direction;
+  const dn = axis.dot(dir); if (Math.abs(dn) < 1e-5) return null; const t = axis.dot(through.clone().sub(o)) / dn; if (t < 0) return null;
+  return o.clone().add(dir.clone().multiplyScalar(t)); }
 let drag = null;
 canvas.addEventListener('pointerdown', e => {
+  pauseRotate();
   setNDC(e); raycaster.setFromCamera(ndc, camera);
-  const hit = raycaster.intersectObjects(dragTargets, false)[0];
-  if (!hit) return;
-  const name = hit.object.userData.joint;
-  const { axis, pivot } = axisOf(name);
+  const hit = raycaster.intersectObjects(dragTargets, false)[0]; if (!hit) return;
+  const name = hit.object.userData.joint; const { axis, pivot } = axisOf(name);
   const r0 = radial(hit.point, axis, pivot); if (r0.lengthSq() < 1e-6) return;
   drag = { name, axis, pivot, grab: hit.point.clone(), r0: r0.normalize(), a0: joint[name] };
   controls.enabled = false; canvas.classList.add('grabbing'); canvas.setPointerCapture?.(e.pointerId);
 });
 canvas.addEventListener('pointermove', e => {
-  if (!drag) return;
-  setNDC(e); raycaster.setFromCamera(ndc, camera);
+  if (!drag) return; setNDC(e); raycaster.setFromCamera(ndc, camera);
   const P = rayPlanePoint(drag.axis, drag.grab); if (!P) return;
-  const r = radial(P, drag.axis, drag.pivot); if (r.lengthSq() < 1e-6) return;
-  r.normalize();
+  const r = radial(P, drag.axis, drag.pivot); if (r.lengthSq() < 1e-6) return; r.normalize();
   const signed = Math.atan2(drag.axis.dot(new THREE.Vector3().crossVectors(drag.r0, r)), drag.r0.dot(r));
-  joint[drag.name] = clamp(drag.a0 + signed, LIMIT[drag.name]); anim = null;
+  joint[drag.name] = goal[drag.name] = clamp(drag.a0 + signed, LIMIT[drag.name]);
 });
 function endDrag() {
   if (!drag) return;
-  const stops = drag.name === 'spine' ? [0, Math.PI] : [0, Math.PI / 2];
-  for (const s of stops) if (Math.abs(joint[drag.name] - s) < 0.13) joint[drag.name] = s;
-  drag = null; controls.enabled = true; canvas.classList.remove('grabbing');
-  const near = joint.spine < 0.4 ? 'stool' : (joint.deskB > 0.5 ? 'desk' : 'storage');
-  setButtons(near);
+  const stops = drag.name === 'spine' ? [0, PI] : [0, PI / 2];
+  for (const s of stops) if (Math.abs(goal[drag.name] - s) < 0.16) joint[drag.name] = goal[drag.name] = s;
+  drag = null; controls.enabled = true; canvas.classList.remove('grabbing'); refreshUI(); resumeRotateSoon();
 }
 canvas.addEventListener('pointerup', endDrag);
 canvas.addEventListener('pointercancel', endDrag);
 
-// hint toast
+// idle turntable
+let rotTimer = null;
+function pauseRotate() { controls.autoRotate = false; clearTimeout(rotTimer); }
+function resumeRotateSoon() { clearTimeout(rotTimer); rotTimer = setTimeout(() => controls.autoRotate = true, 4000); }
+function bumpRotate() { pauseRotate(); resumeRotateSoon(); }
+canvas.addEventListener('wheel', bumpRotate, { passive: true });
+
 const hintEl = document.getElementById('hint');
 let hintTimer = setTimeout(() => hintEl.classList.add('gone'), 6000);
 canvas.addEventListener('pointerdown', () => { hintEl.classList.add('gone'); clearTimeout(hintTimer); }, { once: true });
 
-// framing
-const camTarget = new THREE.Vector3(0, 0.42, 0);
-const cA = new THREE.Vector3(), cB = new THREE.Vector3();
+const camTarget = new THREE.Vector3(0, 0.42, 0), cA = new THREE.Vector3(), cB = new THREE.Vector3();
 function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 new ResizeObserver(resize).observe(stage); resize();
 
-setButtons('stool'); apply();
+refreshUI(); apply();
 document.getElementById('status').hidden = true;
 
+let last = performance.now();
 function tick(now) {
-  if (anim) anim(now);
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const k = 1 - Math.pow(0.001, dt);            // smooth critically-damped approach
+  for (const key of ['spine', 'deskA', 'deskB']) joint[key] += (goal[key] - joint[key]) * k;
   apply();
+  scene.updateMatrixWorld(); updateStruts();
   boxA.getWorldPosition(cA); boxB.getWorldPosition(cB);
   camTarget.lerp(cA.clone().add(cB).multiplyScalar(0.5).setY(0.42), 0.05);
   controls.target.copy(camTarget); controls.update();

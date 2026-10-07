@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transformable Box</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box} [hidden]{display:none!important}
+:root{
+  --paper:#ece3d4;         /* warm cream ground */
+  --sheet:#fbf7f0;         /* cards / bars */
+  --ink:#3a3127;           /* text */
+  --muted:#8a7c69;         /* secondary text */
+  --line:#ded2bd;          /* hairlines */
+  --accent:#b06a3c;        /* terracotta / warm wood */
+  --accent-ink:#ffffff;
+  --sky:#e7ddcb;           /* 3D background */
+  --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --font-body:"IBM Plex Sans","Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1c1812; --sheet:#262019; --ink:#ece3d4; --muted:#a99a84; --line:#3a3127;
+  --accent:#d98a56; --accent-ink:#1c1812; --sky:#201b14; color-scheme:dark}}
+html,body{height:100%;margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);overflow:hidden}
+.app{position:relative;height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));
+  background:var(--sheet);border-bottom:1px solid var(--line)}
+header h1{font:700 clamp(1rem,4.6vw,1.25rem)/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;margin:0}
+header p{margin:0;font-size:.74rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.stage{position:relative;flex:1;min-height:0;background:var(--sky);touch-action:none}
+canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:calc(100% - 32px);text-align:center;
+  font:500 .74rem var(--font-body);color:var(--ink);background:color-mix(in srgb,var(--sheet) 92%,transparent);
+  border:1px solid var(--line);padding:7px 14px;border-radius:999px;box-shadow:0 4px 18px rgb(0 0 0 /.12);transition:opacity .5s ease}
+.hint.gone{opacity:0;pointer-events:none}
+.status{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 .9rem var(--font-body);
+  color:var(--muted);background:var(--sheet);padding:10px 14px;border-radius:10px;border:1px solid var(--line)}
+.dock{background:var(--sheet);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px;
+  padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+.caption{display:flex;gap:10px;align-items:baseline;min-height:2.4em}
+.caption b{font:700 .92rem var(--font-display)}
+.caption span{font-size:.82rem;color:var(--muted);line-height:1.35}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;justify-content:center;
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;cursor:pointer;
+  font:600 .9rem var(--font-body);transition:background-color .18s ease,border-color .18s ease,color .18s ease}
+.seg button small{font-weight:500;font-size:.66rem;color:var(--muted);letter-spacing:.02em}
+.seg button:hover{border-color:var(--muted)}
+.seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--paper))}
+.seg button[aria-pressed="true"] small{color:var(--accent)}
+.dims{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-size:.7rem;color:var(--muted)}
+.dims b{color:var(--ink);font-weight:600}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (min-width:641px){ .seg{grid-template-columns:repeat(3,auto);justify-content:center} .seg button{min-width:150px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Transformable Box</h1>
+    <p>Stool · Storage · Study desk</p>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="c" tabindex="0" aria-label="3D model of a transformable box. Drag to rotate, pinch or scroll to zoom, and use the buttons below to switch configuration."></canvas>
+    <div class="hint" id="hint">Drag to rotate · pinch to zoom</div>
+    <div class="status" id="status">Loading…</div>
+  </div>
+
+  <div class="dock">
+    <div class="caption"><b id="capTitle">Stool</b><span id="capText"></span></div>
+    <div class="seg" role="group" aria-label="Configuration">
+      <button id="bStool"  aria-pressed="true">Stool<small>two side by side</small></button>
+      <button id="bStorage" aria-pressed="false">Storage<small>stacked cabinet</small></button>
+      <button id="bDesk"   aria-pressed="false">Study desk<small>fold-down panel</small></button>
+    </div>
+    <div class="dims">
+      <span>Each box <b>450 × 450 × 450 mm</b></span>
+      <span>Cabinet <b>450 × 900 × 450 mm</b></span>
+      <span>Desk panel <b>450 mm</b></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
+<script>
+const S = 0.45, T = 0.018, H = S / 2;   // box size, panel thickness, half-size (metres)
+
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.92;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 100);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 0.7; controls.maxDistance = 6;
+controls.target.set(0, 0.42, 0);
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
+
+function themeColors() {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light'
+            || document.documentElement.dataset.theme === 'dark';
+  scene.background = new THREE.Color(dark ? 0x201b14 : 0xe7ddcb);
+  scene.fog = new THREE.Fog(dark ? 0x201b14 : 0xe7ddcb, 6, 16);
+}
+themeColors();
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', themeColors);
+
+// lights
+scene.add(new THREE.HemisphereLight(0xfff6e8, 0x5a4e3c, 0.45));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+sun.position.set(2.2, 3.6, 2.4); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, { left: -1.8, right: 1.8, top: 1.8, bottom: -1.8, near: 0.5, far: 12 });
+scene.add(sun);
+
+// ground shadow catcher
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.ShadowMaterial({ opacity: 0.22 }));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+// materials
+const woodFace = new THREE.MeshStandardMaterial({ color: 0xc2924f, roughness: 0.75, metalness: 0, envMapIntensity: 0.5 });
+const woodIn   = new THREE.MeshStandardMaterial({ color: 0xa9793c, roughness: 0.82, metalness: 0, envMapIntensity: 0.45 });
+const metal    = new THREE.MeshStandardMaterial({ color: 0x6b7076, roughness: 0.4,  metalness: 0.75 });
+const edgeMat  = new THREE.LineBasicMaterial({ color: 0x5f4a30, transparent: true, opacity: 0.25 });
+
+function panel(w, h, d, mat) {
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.castShadow = true; m.receiveShadow = true; g.add(m);
+  const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat); g.add(e);
+  return g;
+}
+// an open-front carcass (open toward +Z), centred on local origin, with one shelf
+function carcass(withShelf) {
+  const g = new THREE.Group();
+  const back = panel(S, S, T, woodFace); back.position.z = -H + T / 2; g.add(back);
+  const left = panel(T, S, S, woodFace); left.position.x = -H + T / 2; g.add(left);
+  const right= panel(T, S, S, woodFace); right.position.x =  H - T / 2; g.add(right);
+  const top  = panel(S, T, S, woodFace); top.position.y =  H - T / 2; g.add(top);
+  const bot  = panel(S, T, S, woodFace); bot.position.y = -H + T / 2; g.add(bot);
+  if (withShelf) { const sh = panel(S - 2 * T, T, S - T, woodIn); sh.position.z = T / 2; g.add(sh); }
+  return g;
+}
+
+// box A (lower / left) — open shelving
+const boxA = carcass(true); scene.add(boxA);
+
+// box B (upper / right) — open shelving + fold-down desk panel + support
+const boxB = new THREE.Group(); scene.add(boxB);
+boxB.add(carcass(true));
+
+// fold-down panel: pivot at the bottom-front edge of box B
+const deskPivot = new THREE.Group();
+deskPivot.position.set(0, -H, H - T / 2);
+const desk = panel(S - 2 * T, S - 2 * T, T, woodFace);
+desk.position.set(0, H, 0);                 // extends up from the hinge when closed
+deskPivot.add(desk);
+boxB.add(deskPivot);
+
+// folding support bracket (shown only in desk mode)
+const bracket = new THREE.Group(); boxB.add(bracket);
+function makeStrut(sx) {
+  const s = panel(T, 0.34, T * 1.6, metal);
+  s.position.set(sx, -0.30, 0.363);     // local to boxB; spans cabinet front up to desk underside
+  s.rotation.x = 1.10;
+  return s;
+}
+bracket.add(makeStrut(0.16)); bracket.add(makeStrut(-0.16));
+bracket.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; } });
+
+// continuous top hinge (little cylinder between the boxes, visible in stool mode)
+const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, S - 0.04, 12), metal);
+hinge.rotation.z = Math.PI / 2; hinge.castShadow = true; scene.add(hinge);
+
+// ---- configurations
+const STATES = {
+  stool:   { a: [-H, H, 0],    b: [ H, H, 0],    deskRot: 0,            bracket: 0, hinge: [0, S, 0],        hingeShow: true  },
+  storage: { a: [ 0, H, 0],    b: [ 0, S + H, 0],deskRot: 0,            bracket: 0, hinge: [0, S + H, 0],    hingeShow: false },
+  desk:    { a: [ 0, H, 0],    b: [ 0, S + H, 0],deskRot:  Math.PI / 2, bracket: 1, hinge: [0, S + H, 0],    hingeShow: false },
+};
+const CAPTION = {
+  stool:   ['Stool',      'Two box stools placed side by side.'],
+  storage: ['Storage',    'Boxes folded and stacked to form a vertical cabinet.'],
+  desk:    ['Study desk', 'Fold the panel down to create a compact desk, held by a support bracket.'],
+};
+
+let cur = 'stool';
+// transition state
+let anim = null;
+function snapshot() {
+  return {
+    a: boxA.position.clone(), b: boxB.position.clone(),
+    deskRot: deskPivot.rotation.x, bracket: bracket.children[0].children[0].material.opacity,
+    hinge: hinge.position.clone()
+  };
+}
+function applyImmediate(s) {
+  boxA.position.set(...s.a); boxB.position.set(...s.b);
+  deskPivot.rotation.x = s.deskRot;
+  setBracketOpacity(s.bracket);
+  hinge.position.set(...s.hinge); hinge.visible = s.hingeShow;
+}
+function setBracketOpacity(v) {
+  bracket.visible = v > 0.01;
+  bracket.traverse(o => { if (o.isMesh) o.material.opacity = v; });
+}
+const easeInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+
+function setState(name) {
+  const target = STATES[name];
+  ['bStool', 'bStorage', 'bDesk'].forEach(id => {
+    document.getElementById(id).setAttribute('aria-pressed', id.toLowerCase().includes(name));
+  });
+  const [t, txt] = CAPTION[name];
+  document.getElementById('capTitle').textContent = t;
+  document.getElementById('capText').textContent = txt;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    applyImmediate({ a: target.a, b: target.b, deskRot: target.deskRot, bracket: target.bracket, hinge: target.hinge, hingeShow: target.hingeShow });
+    cur = name; return;
+  }
+  hinge.visible = STATES[cur].hingeShow || target.hingeShow;   // keep visible across the move, then settle
+  const from = snapshot();
+  const to = {
+    a: new THREE.Vector3(...target.a), b: new THREE.Vector3(...target.b),
+    deskRot: target.deskRot, bracket: target.bracket, hinge: new THREE.Vector3(...target.hinge)
+  };
+  const start = performance.now(), dur = 950;
+  anim = now => {
+    const k = Math.min(1, (now - start) / dur), e = easeInOut(k);
+    boxA.position.lerpVectors(from.a, to.a, e);
+    boxB.position.lerpVectors(from.b, to.b, e);
+    deskPivot.rotation.x = from.deskRot + (to.deskRot - from.deskRot) * e;
+    setBracketOpacity(from.bracket + (to.bracket - from.bracket) * e);
+    hinge.position.lerpVectors(from.hinge, to.hinge, e);
+    if (k >= 1) { anim = null; hinge.visible = target.hingeShow; cur = name; }
+  };
+}
+
+document.getElementById('bStool').onclick   = () => setState('stool');
+document.getElementById('bStorage').onclick = () => setState('storage');
+document.getElementById('bDesk').onclick    = () => setState('desk');
+
+// initial
+applyImmediate({ ...STATES.stool, hingeShow: STATES.stool.hingeShow });
+setState('stool');
+document.getElementById('status').hidden = true;
+camera.position.set(1.15, 0.95, 1.35);
+
+// hint toast
+const hintEl = document.getElementById('hint');
+let hintTimer = setTimeout(() => hintEl.classList.add('gone'), 5000);
+stage.addEventListener('pointerdown', () => { hintEl.classList.add('gone'); clearTimeout(hintTimer); }, { once: true });
+
+// loop
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+function tick(now) {
+  if (anim) anim(now);
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

@@ -218,23 +218,44 @@ barrel.rotation.x = PI / 2; barrel.castShadow = true; spine.add(barrel);
 
 // support brackets: two steel struts whose ends are recomputed every frame so they
 // genuinely connect the cabinet to the underside of the desk panel (no floating).
+// support anchors live on the UPPER box (box B) so the desk is held from above,
+// independent of the lower box and its door. (local coords; box B is flipped in storage)
 const cabAnchor = [new THREE.Object3D(), new THREE.Object3D()];
-cabAnchor[0].position.set( H - 0.03, 0.08, H); boxA.add(cabAnchor[0]);   // right, on lower box front
-cabAnchor[1].position.set(-H + 0.03, 0.08, H); boxA.add(cabAnchor[1]);   // left
+cabAnchor[0].position.set(-(H - 0.03), 0.12, 0.15); boxB.add(cabAnchor[0]);  // world right, just above & behind the hinge
+cabAnchor[1].position.set( (H - 0.03), 0.12, 0.15); boxB.add(cabAnchor[1]);  // world left
 const deskAnchor = [new THREE.Object3D(), new THREE.Object3D()];
-deskAnchor[0].position.set( H - 0.05, -(H - 0.05), -T); doorB.pan.add(deskAnchor[0]);
-deskAnchor[1].position.set(-H + 0.05, -(H - 0.05), -T); doorB.pan.add(deskAnchor[1]);
-const struts = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 1, 12), steel); m.castShadow = true; scene.add(m); return m; });
-const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _mid = new THREE.Vector3(), _dir = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
+deskAnchor[0].position.set(-(H - 0.06), 0.08, -0.03); doorB.pan.add(deskAnchor[0]); // world right, just forward of hinge, underside
+deskAnchor[1].position.set( (H - 0.06), 0.08, -0.03); doorB.pan.add(deskAnchor[1]); // world left
+// telescopic gas strut per side: a fixed outer tube + an inner rod that slides out
+// as the lid opens, so it retracts when closed and extends to hold the desk level.
+const chrome = new THREE.MeshStandardMaterial({ color: 0xccd0d4, roughness: 0.18, metalness: 0.95, envMapIntensity: 1.2 });
+const TUBE_LEN = 0.075;
+function makeStrut() {
+  const tube = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 1, 16), steel); tube.castShadow = true; scene.add(tube);
+  const rod  = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 1, 12), chrome); rod.castShadow = true; scene.add(rod);
+  const capA = new THREE.Mesh(new THREE.SphereGeometry(0.011, 12, 10), steel); scene.add(capA);   // pivot at box end
+  const capB = new THREE.Mesh(new THREE.SphereGeometry(0.008, 12, 10), chrome); scene.add(capB);   // pivot at lid end
+  return { tube, rod, capA, capB };
+}
+const struts = [makeStrut(), makeStrut()];
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _mid = new THREE.Vector3(), _dir = new THREE.Vector3(),
+      _end = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
+function placeCyl(mesh, a, b) {
+  _mid.addVectors(a, b).multiplyScalar(0.5); _dir.subVectors(b, a);
+  const len = _dir.length(); mesh.position.copy(_mid); mesh.scale.set(1, Math.max(1e-4, len), 1);
+  mesh.quaternion.setFromUnitVectors(_up, _dir.normalize());
+}
 function updateStruts() {
-  const show = joint.deskB > 0.06;
+  const show = joint.spine > 2.2;                 // only once folded into the cabinet
   for (let i = 0; i < 2; i++) {
-    struts[i].visible = show; if (!show) continue;
+    const s = struts[i]; const vis = show; s.tube.visible = s.rod.visible = s.capA.visible = s.capB.visible = vis;
+    if (!vis) continue;
     cabAnchor[i].getWorldPosition(_a); deskAnchor[i].getWorldPosition(_b);
-    _mid.addVectors(_a, _b).multiplyScalar(0.5); _dir.subVectors(_b, _a);
-    const len = _dir.length(); struts[i].position.copy(_mid);
-    struts[i].scale.set(1, Math.max(0.001, len), 1);
-    struts[i].quaternion.setFromUnitVectors(_up, _dir.normalize());
+    const total = _a.distanceTo(_b); const tubeLen = Math.min(TUBE_LEN, total);
+    _end.subVectors(_b, _a).normalize().multiplyScalar(tubeLen).add(_a);   // where the tube ends / rod begins
+    placeCyl(s.tube, _a, _end);
+    placeCyl(s.rod, _end, _b);
+    s.capA.position.copy(_a); s.capB.position.copy(_b);
   }
 }
 

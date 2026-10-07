@@ -3,20 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Transformable Box</title>
+<title>Transformable Box — by Noor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 *{box-sizing:border-box} [hidden]{display:none!important}
 :root{
-  --paper:#ece3d4;         /* warm cream ground */
-  --sheet:#fbf7f0;         /* cards / bars */
-  --ink:#3a3127;           /* text */
-  --muted:#8a7c69;         /* secondary text */
-  --line:#ded2bd;          /* hairlines */
-  --accent:#b06a3c;        /* terracotta / warm wood */
-  --accent-ink:#ffffff;
-  --sky:#e7ddcb;           /* 3D background */
+  --paper:#ece3d4; --sheet:#fbf7f0; --ink:#3a3127; --muted:#8a7c69; --line:#ded2bd;
+  --accent:#b06a3c; --accent-ink:#ffffff; --sky:#e7ddcb;
   --font-display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --font-body:"IBM Plex Sans","Segoe UI",Roboto,sans-serif;
 }
@@ -25,13 +19,16 @@
   --accent:#d98a56; --accent-ink:#1c1812; --sky:#201b14; color-scheme:dark}}
 html,body{height:100%;margin:0;font-family:var(--font-body);background:var(--paper);color:var(--ink);overflow:hidden}
 .app{position:relative;height:100%;display:flex;flex-direction:column}
-header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
-  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));
   background:var(--sheet);border-bottom:1px solid var(--line)}
-header h1{font:700 clamp(1rem,4.6vw,1.25rem)/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;margin:0}
-header p{margin:0;font-size:.74rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.brand h1{font:700 clamp(1rem,4.6vw,1.25rem)/1.1 var(--font-display);letter-spacing:.06em;text-transform:uppercase;margin:0}
+.brand p{margin:3px 0 0;font-size:.72rem;color:var(--muted);letter-spacing:.14em;text-transform:uppercase}
+.by{flex:none;font:600 .9rem var(--font-display);color:var(--accent);letter-spacing:.02em}
+.by b{font-style:italic;font-weight:700}
 .stage{position:relative;flex:1;min-height:0;background:var(--sky);touch-action:none}
-canvas{display:block;width:100%;height:100%}
+canvas{display:block;width:100%;height:100%;cursor:grab}
+canvas.grabbing{cursor:grabbing}
 .hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);max-width:calc(100% - 32px);text-align:center;
   font:500 .74rem var(--font-body);color:var(--ink);background:color-mix(in srgb,var(--sheet) 92%,transparent);
   border:1px solid var(--line);padding:7px 14px;border-radius:999px;box-shadow:0 4px 18px rgb(0 0 0 /.12);transition:opacity .5s ease}
@@ -47,7 +44,7 @@ canvas{display:block;width:100%;height:100%}
 .seg button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;justify-content:center;
   border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:12px;cursor:pointer;
   font:600 .9rem var(--font-body);transition:background-color .18s ease,border-color .18s ease,color .18s ease}
-.seg button small{font-weight:500;font-size:.66rem;color:var(--muted);letter-spacing:.02em}
+.seg button small{font-weight:500;font-size:.66rem;color:var(--muted)}
 .seg button:hover{border-color:var(--muted)}
 .seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,var(--paper))}
 .seg button[aria-pressed="true"] small{color:var(--accent)}
@@ -61,13 +58,16 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <body>
 <div class="app">
   <header>
-    <h1>Transformable Box</h1>
-    <p>Stool · Storage · Study desk</p>
+    <div class="brand">
+      <h1>Transformable Box</h1>
+      <p>Stool · Storage · Study desk</p>
+    </div>
+    <span class="by">by <b>Noor</b></span>
   </header>
 
   <div class="stage" id="stage">
-    <canvas id="c" tabindex="0" aria-label="3D model of a transformable box. Drag to rotate, pinch or scroll to zoom, and use the buttons below to switch configuration."></canvas>
-    <div class="hint" id="hint">Drag to rotate · pinch to zoom</div>
+    <canvas id="c" tabindex="0" aria-label="Interactive 3D model of a transformable box. Drag a box to fold it and drag a front panel to open the desk; use the buttons to snap to a configuration."></canvas>
+    <div class="hint" id="hint">Drag a box to fold it · drag a front panel to open the desk</div>
     <div class="status" id="status">Loading…</div>
   </div>
 
@@ -75,7 +75,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     <div class="caption"><b id="capTitle">Stool</b><span id="capText"></span></div>
     <div class="seg" role="group" aria-label="Configuration">
       <button id="bStool"  aria-pressed="true">Stool<small>two side by side</small></button>
-      <button id="bStorage" aria-pressed="false">Storage<small>stacked cabinet</small></button>
+      <button id="bStorage" aria-pressed="false">Storage<small>fold &amp; stack</small></button>
       <button id="bDesk"   aria-pressed="false">Study desk<small>fold-down panel</small></button>
     </div>
     <div class="dims">
@@ -90,7 +90,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
 <script>
-const S = 0.45, T = 0.018, H = S / 2;   // box size, panel thickness, half-size (metres)
+const S = 0.45, T = 0.018, H = S / 2;
 
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('c');
@@ -106,6 +106,7 @@ const controls = new THREE.OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.dampingFactor = 0.08;
 controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 0.7; controls.maxDistance = 6;
 controls.target.set(0, 0.42, 0);
+camera.position.set(1.25, 1.0, 1.5);
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
@@ -119,162 +120,211 @@ function themeColors() {
 themeColors();
 matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', themeColors);
 
-// lights
 scene.add(new THREE.HemisphereLight(0xfff6e8, 0x5a4e3c, 0.45));
 const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
 sun.position.set(2.2, 3.6, 2.4); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
-Object.assign(sun.shadow.camera, { left: -1.8, right: 1.8, top: 1.8, bottom: -1.8, near: 0.5, far: 12 });
+Object.assign(sun.shadow.camera, { left: -2.2, right: 2.2, top: 2.2, bottom: -2.2, near: 0.5, far: 12 });
 scene.add(sun);
 
-// ground shadow catcher
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(14, 14), new THREE.ShadowMaterial({ opacity: 0.22 }));
 ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
 
-// materials
 const woodFace = new THREE.MeshStandardMaterial({ color: 0xc2924f, roughness: 0.75, metalness: 0, envMapIntensity: 0.5 });
 const woodIn   = new THREE.MeshStandardMaterial({ color: 0xa9793c, roughness: 0.82, metalness: 0, envMapIntensity: 0.45 });
-const metal    = new THREE.MeshStandardMaterial({ color: 0x6b7076, roughness: 0.4,  metalness: 0.75 });
+const metal    = new THREE.MeshStandardMaterial({ color: 0x70757b, roughness: 0.4, metalness: 0.75 });
 const edgeMat  = new THREE.LineBasicMaterial({ color: 0x5f4a30, transparent: true, opacity: 0.25 });
 
-function panel(w, h, d, mat) {
+// "Noor" branding stamp as a canvas texture
+function markTexture() {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 132;
+  const g = c.getContext('2d'); g.clearRect(0, 0, 256, 132);
+  g.fillStyle = 'rgba(74,58,36,0.52)';
+  g.font = '700 italic 66px Georgia, "Times New Roman", serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText('Noor', 128, 62);
+  g.strokeStyle = 'rgba(74,58,36,0.38)'; g.lineWidth = 4;
+  g.beginPath(); g.moveTo(78, 100); g.lineTo(178, 100); g.stroke();
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; t.encoding = THREE.sRGBEncoding; return t;
+}
+const MARK_TEX = markTexture();
+function addMark(parent, x, y, z, rotY, w) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, w * 0.52),
+    new THREE.MeshBasicMaterial({ map: MARK_TEX, transparent: true, depthWrite: false }));
+  m.position.set(x, y, z); m.rotation.y = rotY; parent.add(m); return m;
+}
+
+function panel(w, h, d, mat, joint) {
   const g = new THREE.Group();
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.castShadow = true; m.receiveShadow = true; g.add(m);
-  const e = new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat); g.add(e);
+  m.castShadow = true; m.receiveShadow = true; if (joint) m.userData.joint = joint; g.add(m);
+  g.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry), edgeMat));
   return g;
 }
-// an open-front carcass (open toward +Z), centred on local origin, with one shelf
-function carcass(withShelf) {
+// open-front carcass (open +Z) + shelf + a "Noor" stamp on each outer side
+function carcass(joint) {
   const g = new THREE.Group();
-  const back = panel(S, S, T, woodFace); back.position.z = -H + T / 2; g.add(back);
-  const left = panel(T, S, S, woodFace); left.position.x = -H + T / 2; g.add(left);
-  const right= panel(T, S, S, woodFace); right.position.x =  H - T / 2; g.add(right);
-  const top  = panel(S, T, S, woodFace); top.position.y =  H - T / 2; g.add(top);
-  const bot  = panel(S, T, S, woodFace); bot.position.y = -H + T / 2; g.add(bot);
-  if (withShelf) { const sh = panel(S - 2 * T, T, S - T, woodIn); sh.position.z = T / 2; g.add(sh); }
+  const add = (w, h, d, m, px, py, pz) => { const p = panel(w, h, d, m, joint); p.position.set(px, py, pz); g.add(p); };
+  add(S, S, T, woodFace, 0, 0, -H + T / 2);        // back
+  add(T, S, S, woodFace, -H + T / 2, 0, 0);        // left
+  add(T, S, S, woodFace,  H - T / 2, 0, 0);        // right
+  add(S, T, S, woodFace, 0,  H - T / 2, 0);        // top
+  add(S, T, S, woodFace, 0, -H + T / 2, 0);        // bottom
+  add(S - 2 * T, T, S - T, woodIn, 0, 0, T / 2);   // shelf
+  addMark(g,  H + 0.002, 0, 0,  Math.PI / 2, 0.30); // right side
+  addMark(g, -H - 0.002, 0, 0, -Math.PI / 2, 0.30); // left side
   return g;
 }
 
-// box A (lower / left) — open shelving
-const boxA = carcass(true); scene.add(boxA);
-
-// box B (upper / right) — open shelving + fold-down desk panel + support
-const boxB = new THREE.Group(); scene.add(boxB);
-boxB.add(carcass(true));
-
-// fold-down panel: pivot at the bottom-front edge of box B
-const deskPivot = new THREE.Group();
-deskPivot.position.set(0, -H, H - T / 2);
-const desk = panel(S - 2 * T, S - 2 * T, T, woodFace);
-desk.position.set(0, H, 0);                 // extends up from the hinge when closed
-deskPivot.add(desk);
-boxB.add(deskPivot);
-
-// folding support bracket (shown only in desk mode)
-const bracket = new THREE.Group(); boxB.add(bracket);
-function makeStrut(sx) {
-  const s = panel(T, 0.34, T * 1.6, metal);
-  s.position.set(sx, -0.30, 0.363);     // local to boxB; spans cabinet front up to desk underside
-  s.rotation.x = 1.10;
-  return s;
+// identical fold-down front door for a box. hy = hinge edge (±H), sign = fold direction.
+const HINGE = {};
+function makeDoor(box, hy, sign, key) {
+  const hinge = new THREE.Group(); hinge.position.set(0, hy, H); box.add(hinge);
+  const pan = panel(S - 2 * T, S - 2 * T, T, woodFace, key);
+  pan.position.set(0, -hy, 0);                      // covers the whole front from the hinge edge
+  addMark(pan, 0, 0, T / 2 + 0.002, 0, 0.30);       // "Noor" on the door face
+  hinge.add(pan);
+  HINGE[key] = hinge;
+  return { hinge, sign, key };
 }
-bracket.add(makeStrut(0.16)); bracket.add(makeStrut(-0.16));
-bracket.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; } });
 
-// continuous top hinge (little cylinder between the boxes, visible in stool mode)
-const hinge = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, S - 0.04, 12), metal);
-hinge.rotation.z = Math.PI / 2; hinge.castShadow = true; scene.add(hinge);
+// box A (static) and box B (folds about the spine)
+const boxA = carcass('spine'); boxA.position.set(-H, H, 0); scene.add(boxA);
+const spine = new THREE.Group(); spine.position.set(0, S, 0); scene.add(spine);
+const boxB = carcass('spine'); boxB.position.set(H, -H, 0); spine.add(boxB);
 
-// ---- configurations
-const STATES = {
-  stool:   { a: [-H, H, 0],    b: [ H, H, 0],    deskRot: 0,            bracket: 0, hinge: [0, S, 0],        hingeShow: true  },
-  storage: { a: [ 0, H, 0],    b: [ 0, S + H, 0],deskRot: 0,            bracket: 0, hinge: [0, S + H, 0],    hingeShow: false },
-  desk:    { a: [ 0, H, 0],    b: [ 0, S + H, 0],deskRot:  Math.PI / 2, bracket: 1, hinge: [0, S + H, 0],    hingeShow: false },
+const doorA = makeDoor(boxA, -H,  1, 'deskA');       // not flipped → bottom hinge, +fold
+const doorB = makeDoor(boxB,  H, -1, 'deskB');       // flipped in storage → top hinge, -fold
+const doors = [doorA, doorB];
+
+// piano hinge barrel on the spine
+const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, S - 0.03, 14), metal);
+barrel.rotation.x = Math.PI / 2; barrel.castShadow = true; spine.add(barrel);
+
+// support bracket under the desk (box B's door)
+const bracket = new THREE.Group(); bracket.position.set(0, H, H - 0.01); boxB.add(bracket);
+const legL = panel(T, 0.30, T * 1.4, metal); legL.position.set(-0.17, -0.15, 0); bracket.add(legL);
+const legR = panel(T, 0.30, T * 1.4, metal); legR.position.set( 0.17, -0.15, 0); bracket.add(legR);
+[legL, legR].forEach(l => l.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; } }));
+
+// ---- joint state ----
+const joint = { spine: 0, deskA: 0, deskB: 0 };
+const LIMIT = { spine: [0, Math.PI], deskA: [0, Math.PI / 2], deskB: [0, Math.PI / 2] };
+const clamp = (v, [a, b]) => Math.min(b, Math.max(a, v));
+function apply() {
+  spine.rotation.z = joint.spine;
+  doorA.hinge.rotation.x = doorA.sign * joint.deskA;
+  doorB.hinge.rotation.x = doorB.sign * joint.deskB;
+  const t = joint.deskB / (Math.PI / 2);
+  bracket.rotation.x = -t * 1.15;
+  const show = t > 0.04;
+  [legL, legR].forEach(l => l.traverse(o => { if (o.isMesh) { o.visible = show; o.material.opacity = Math.min(1, t * 2); } }));
+}
+
+const PRESET = {
+  stool:   { spine: 0,       deskA: 0, deskB: 0 },
+  storage: { spine: Math.PI, deskA: 0, deskB: 0 },
+  desk:    { spine: Math.PI, deskA: 0, deskB: Math.PI / 2 },
 };
 const CAPTION = {
-  stool:   ['Stool',      'Two box stools placed side by side.'],
-  storage: ['Storage',    'Boxes folded and stacked to form a vertical cabinet.'],
-  desk:    ['Study desk', 'Fold the panel down to create a compact desk, held by a support bracket.'],
+  stool:   ['Stool',      'Two identical box stools side by side, joined by the top hinge. Drag either box to fold.'],
+  storage: ['Storage',    'Box B folds over the hinge onto box A — a 450 × 900 × 450 cabinet.'],
+  desk:    ['Study desk', 'The upper front panel folds down on its hinge, caught by the support bracket.'],
 };
-
-let cur = 'stool';
-// transition state
-let anim = null;
-function snapshot() {
-  return {
-    a: boxA.position.clone(), b: boxB.position.clone(),
-    deskRot: deskPivot.rotation.x, bracket: bracket.children[0].children[0].material.opacity,
-    hinge: hinge.position.clone()
-  };
-}
-function applyImmediate(s) {
-  boxA.position.set(...s.a); boxB.position.set(...s.b);
-  deskPivot.rotation.x = s.deskRot;
-  setBracketOpacity(s.bracket);
-  hinge.position.set(...s.hinge); hinge.visible = s.hingeShow;
-}
-function setBracketOpacity(v) {
-  bracket.visible = v > 0.01;
-  bracket.traverse(o => { if (o.isMesh) o.material.opacity = v; });
-}
-const easeInOut = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-
-function setState(name) {
-  const target = STATES[name];
-  ['bStool', 'bStorage', 'bDesk'].forEach(id => {
-    document.getElementById(id).setAttribute('aria-pressed', id.toLowerCase().includes(name));
-  });
+function setButtons(name) {
+  ['bStool', 'bStorage', 'bDesk'].forEach(id => document.getElementById(id).setAttribute('aria-pressed', id.toLowerCase().includes(name)));
   const [t, txt] = CAPTION[name];
-  document.getElementById('capTitle').textContent = t;
-  document.getElementById('capText').textContent = txt;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    applyImmediate({ a: target.a, b: target.b, deskRot: target.deskRot, bracket: target.bracket, hinge: target.hinge, hingeShow: target.hingeShow });
-    cur = name; return;
-  }
-  hinge.visible = STATES[cur].hingeShow || target.hingeShow;   // keep visible across the move, then settle
-  const from = snapshot();
-  const to = {
-    a: new THREE.Vector3(...target.a), b: new THREE.Vector3(...target.b),
-    deskRot: target.deskRot, bracket: target.bracket, hinge: new THREE.Vector3(...target.hinge)
-  };
-  const start = performance.now(), dur = 950;
+  document.getElementById('capTitle').textContent = t; document.getElementById('capText').textContent = txt;
+}
+let anim = null;
+function goTo(name) {
+  setButtons(name);
+  const to = PRESET[name];
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { Object.assign(joint, to); anim = null; return; }
+  const from = { ...joint }, start = performance.now(), dur = 1100;
+  const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
   anim = now => {
-    const k = Math.min(1, (now - start) / dur), e = easeInOut(k);
-    boxA.position.lerpVectors(from.a, to.a, e);
-    boxB.position.lerpVectors(from.b, to.b, e);
-    deskPivot.rotation.x = from.deskRot + (to.deskRot - from.deskRot) * e;
-    setBracketOpacity(from.bracket + (to.bracket - from.bracket) * e);
-    hinge.position.lerpVectors(from.hinge, to.hinge, e);
-    if (k >= 1) { anim = null; hinge.visible = target.hingeShow; cur = name; }
+    const k = Math.min(1, (now - start) / dur), e = ease(k);
+    for (const key of ['spine', 'deskA', 'deskB']) joint[key] = from[key] + (to[key] - from[key]) * e;
+    if (k >= 1) anim = null;
   };
 }
+document.getElementById('bStool').onclick   = () => goTo('stool');
+document.getElementById('bStorage').onclick = () => goTo('storage');
+document.getElementById('bDesk').onclick    = () => goTo('desk');
 
-document.getElementById('bStool').onclick   = () => setState('stool');
-document.getElementById('bStorage').onclick = () => setState('storage');
-document.getElementById('bDesk').onclick    = () => setState('desk');
+// ---- direct manipulation ----
+const raycaster = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const dragTargets = [];
+scene.traverse(o => { if (o.isMesh && o.userData.joint) dragTargets.push(o); });
 
-// initial
-applyImmediate({ ...STATES.stool, hingeShow: STATES.stool.hingeShow });
-setState('stool');
-document.getElementById('status').hidden = true;
-camera.position.set(1.15, 0.95, 1.35);
+function axisOf(name) {
+  if (name === 'spine') return { axis: new THREE.Vector3(0, 0, 1), pivot: new THREE.Vector3(0, S, 0) };
+  const hinge = HINGE[name];
+  const pivot = new THREE.Vector3(); hinge.getWorldPosition(pivot);
+  const axis = new THREE.Vector3(1, 0, 0).transformDirection(hinge.matrixWorld).normalize();
+  return { axis, pivot };
+}
+function setNDC(e) { const r = canvas.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); }
+function radial(P, axis, pivot) { const d = P.clone().sub(pivot); return d.sub(axis.clone().multiplyScalar(d.dot(axis))); }
+function rayPlanePoint(axis, through) {
+  const o = raycaster.ray.origin, dir = raycaster.ray.direction;
+  const denom = axis.dot(dir); if (Math.abs(denom) < 1e-5) return null;
+  const t = axis.dot(through.clone().sub(o)) / denom; if (t < 0) return null;
+  return o.clone().add(dir.clone().multiplyScalar(t));
+}
+let drag = null;
+canvas.addEventListener('pointerdown', e => {
+  setNDC(e); raycaster.setFromCamera(ndc, camera);
+  const hit = raycaster.intersectObjects(dragTargets, false)[0];
+  if (!hit) return;
+  const name = hit.object.userData.joint;
+  const { axis, pivot } = axisOf(name);
+  const r0 = radial(hit.point, axis, pivot); if (r0.lengthSq() < 1e-6) return;
+  drag = { name, axis, pivot, grab: hit.point.clone(), r0: r0.normalize(), a0: joint[name] };
+  controls.enabled = false; canvas.classList.add('grabbing'); canvas.setPointerCapture?.(e.pointerId);
+});
+canvas.addEventListener('pointermove', e => {
+  if (!drag) return;
+  setNDC(e); raycaster.setFromCamera(ndc, camera);
+  const P = rayPlanePoint(drag.axis, drag.grab); if (!P) return;
+  const r = radial(P, drag.axis, drag.pivot); if (r.lengthSq() < 1e-6) return;
+  r.normalize();
+  const signed = Math.atan2(drag.axis.dot(new THREE.Vector3().crossVectors(drag.r0, r)), drag.r0.dot(r));
+  joint[drag.name] = clamp(drag.a0 + signed, LIMIT[drag.name]); anim = null;
+});
+function endDrag() {
+  if (!drag) return;
+  const stops = drag.name === 'spine' ? [0, Math.PI] : [0, Math.PI / 2];
+  for (const s of stops) if (Math.abs(joint[drag.name] - s) < 0.13) joint[drag.name] = s;
+  drag = null; controls.enabled = true; canvas.classList.remove('grabbing');
+  const near = joint.spine < 0.4 ? 'stool' : (joint.deskB > 0.5 ? 'desk' : 'storage');
+  setButtons(near);
+}
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
 
 // hint toast
 const hintEl = document.getElementById('hint');
-let hintTimer = setTimeout(() => hintEl.classList.add('gone'), 5000);
-stage.addEventListener('pointerdown', () => { hintEl.classList.add('gone'); clearTimeout(hintTimer); }, { once: true });
+let hintTimer = setTimeout(() => hintEl.classList.add('gone'), 6000);
+canvas.addEventListener('pointerdown', () => { hintEl.classList.add('gone'); clearTimeout(hintTimer); }, { once: true });
 
-// loop
-function resize() {
-  const w = stage.clientWidth, h = stage.clientHeight;
-  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-}
+// framing
+const camTarget = new THREE.Vector3(0, 0.42, 0);
+const cA = new THREE.Vector3(), cB = new THREE.Vector3();
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 new ResizeObserver(resize).observe(stage); resize();
+
+setButtons('stool'); apply();
+document.getElementById('status').hidden = true;
+
 function tick(now) {
   if (anim) anim(now);
-  controls.update();
+  apply();
+  boxA.getWorldPosition(cA); boxB.getWorldPosition(cB);
+  camTarget.lerp(cA.clone().add(cB).multiplyScalar(0.5).setY(0.42), 0.05);
+  controls.target.copy(camTarget); controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }
